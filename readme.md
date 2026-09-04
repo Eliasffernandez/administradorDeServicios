@@ -136,3 +136,40 @@ Si el servicio no existe devuelve `null`.
 * dotenv
 * JSON
 * Git y GitHub
+
+
+
+que tiene que ir en app.js y en server.js, eso no me quedo claro
+
+Prof. Pablo Macia 22:30
+Por ahora server.js solo se encarga de levantar el servidor, los endopoints van en app.js
+
+## Endpoints
+
+### Obtener todos los servicios
+
+GET /api/services
+
+### Filtrar por categoría
+
+GET /api/services?category=Automotor
+
+### Filtrar por disponibilidad
+
+GET /api/services?available=true
+
+### Obtener un servicio por ID
+
+GET /api/services/:sid
+
+### Crear un servicio
+
+POST /api/services
+
+### Modificar un servicio
+
+PUT /api/services/:sid
+
+### Eliminar un servicio
+
+DELETE /api/services/:sid

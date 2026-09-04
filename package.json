@@ -1,16 +1,17 @@
 {
-  "name": "administradordeservicios",
-  "version": "1.0.0",
-  "description": "Administrador de servicios para un sistema de turnos y reservas",
-  "type": "module",
-  "main": "src/app.js",
-  "scripts": {
-    "start": "node src/app.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "dotenv": "^17.4.2"
-  }
+    "name": "administradordeservicios",
+    "version": "1.0.0",
+    "description": "Administrador de servicios para un sistema de turnos y reservas",
+    "type": "module",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1"
+    }
 }
