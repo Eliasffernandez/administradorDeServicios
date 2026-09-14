@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Lavado de auto",
+    "description": "Lavado exterior e interior",
+    "duration": 60,
+    "price": 8000,
+    "category": "Automotor",
+    "available": true
+  }
+]
