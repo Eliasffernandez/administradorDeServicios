@@ -46,41 +46,48 @@ Estas variables se configuran en un archivo `.env`.
 
 El archivo `.env` no se incluye en el repositorio.
 
+
 ## Estructura del proyecto
 
 ```text
 src/
-├── app.js
 ├── config/
 │   └── env.config.js
+├── controllers/
+│   ├── services.controller.js
+│   └── bookings.controller.js
+├── services/
+│   ├── services.service.js
+│   └── bookings.service.js
+├── repositories/
+│   ├── services.repository.js
+│   └── bookings.repository.js
+├── dao/
+│   ├── services.dao.js
+│   └── bookings.dao.js
+├── routes/
+│   ├── services.router.js
+│   └── bookings.router.js
 ├── data/
 │   ├── services.json
 │   └── bookings.json
-├── managers/
-│   ├── BookingManager.js
-│   └── ServiceManager.js
-└── routes/
-    ├── bookings.router.js
-    └── services.router.js
+├── app.js
+└── server.js
 
-server.js
 package.json
+.env.example
 .gitignore
 README.md
-```
+
 
 ## Arquitectura
 
-### server.js
+La API está organizada utilizando una arquitectura en capas, separando las responsabilidades de cada parte de la aplicación.
 
-`server.js` se encarga de iniciar el servidor y escuchar en el puerto configurado.
+El flujo de una petición es:
 
-### app.js
-
-`app.js` configura Express, habilita el procesamiento de datos en formato JSON y registra los routers de servicios y reservas.
-
-Los endpoints se encuentran organizados en los archivos correspondientes dentro de la carpeta `routes`.
-
+```text
+Router → Controller → Service → Repository → DAO → JSON
 ## Servicios
 
 Cada servicio contiene los siguientes datos:
@@ -107,11 +114,15 @@ Ejemplo:
 }
 ```
 
-## ServiceManager
+## Capas de Services
 
-La clase `ServiceManager` se encarga de administrar los servicios y su persistencia en `services.json`.
+El recurso `services` está organizado en diferentes capas:
 
-Cuenta con los siguientes métodos:
+- `services.service.js`: contiene la lógica de negocio de los servicios.
+- `services.repository.js`: comunica el service con el DAO.
+- `services.dao.js`: realiza la lectura y escritura de `services.json`.
+- `services.controller.js`: recibe las solicitudes HTTP y devuelve las respuestas.
+- `services.router.js`: define los endpoints relacionados con los servicios.
 
 ### getServices()
 
@@ -214,11 +225,17 @@ Ejemplo:
 }
 ```
 
-## BookingManager
+## Capas de Bookings
 
-La clase `BookingManager` se encarga de administrar las reservas y su persistencia en `bookings.json`.
+El recurso `bookings` está organizado en diferentes capas:
 
-Cuenta con los siguientes métodos:
+- `bookings.service.js`: contiene la lógica de negocio de las reservas.
+- `bookings.repository.js`: comunica el service con el DAO.
+- `bookings.dao.js`: realiza la lectura y escritura de `bookings.json`.
+- `bookings.controller.js`: recibe las solicitudes HTTP y devuelve las respuestas.
+- `bookings.router.js`: define los endpoints relacionados con las reservas.
+
+Cuando se agrega un servicio a una reserva, si el mismo servicio ya se encuentra asociado, se incrementa su `quantity`.
 
 ### createBooking(bookingData)
 
@@ -324,14 +341,13 @@ POST /api/bookings/:bid/services/:sid
 
 ## Persistencia
 
+## Persistencia
+
 La información se almacena mediante FileSystem en archivos JSON:
 
 ```text
 src/data/services.json
 src/data/bookings.json
-```
-
-Los datos se leen y escriben directamente en estos archivos, permitiendo mantener la información almacenada aunque se reinicie el servidor.
 
 ## Tecnologías utilizadas
 
