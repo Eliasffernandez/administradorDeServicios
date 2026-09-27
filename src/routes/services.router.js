@@ -21,4 +21,3 @@ router.put("/:sid", updateService);
 router.delete("/:sid", deleteService);
 
 export default router;
-

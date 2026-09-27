@@ -1,0 +1,6 @@
+{"level":"info","message":"⌛ Building environment","timeElapsed":269,"timestamp":"2026-09-22T19:30:24.364Z"}
+{"level":"info","message":"⌛ Building environment","timeElapsed":159,"timestamp":"2026-09-22T19:30:24.554Z"}
+{"level":"error","message":"✘ Could not produce symbols: document file:///c%3A/Users/elias/OneDrive/Documentos/tpFarmearAura/polimorfismo-competenciaFarmearAura-Eliasffernandez/competencia.wlk not found","timestamp":"2026-09-22T19:30:24.575Z"}
+{"level":"error","message":"✘ Could not produce symbols: document file:///c%3A/Users/elias/OneDrive/Documentos/tpFarmearAura/polimorfismo-competenciaFarmearAura-Eliasffernandez/competencia.wlk not found","timestamp":"2026-09-22T19:30:24.590Z"}
+{"level":"info","message":"⌛ Building environment","timeElapsed":765,"timestamp":"2026-09-27T03:38:40.899Z"}
+{"level":"info","message":"⌛ Building environment","timeElapsed":314,"timestamp":"2026-09-27T03:38:41.465Z"}

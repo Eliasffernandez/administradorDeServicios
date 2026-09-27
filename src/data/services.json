@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Lavado de auto",
+    "description": "Lavado completo",
+    "duration": 60,
+    "price": 9000,
+    "category": "Automotor",
+    "available": true
+  }
+]

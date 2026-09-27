@@ -1,30 +1,15 @@
+import ServicesService from "../services/services.service.js";
 
-import ServiceManager from "../managers/ServiceManager.js";
-
-const serviceManager = new ServiceManager();
+const servicesService = new ServicesService();
 
 export const getServices = (req, res) => {
-    let services = serviceManager.getServices();
-
-    const {category, available} = req.query;
-
-    if (category) {
-        services = services.filter(
-            service => service.category.toLowerCase() === category.toLowerCase()
-        );
-    }
-
-    if (available !== undefined) {
-        services = services.filter(
-            service => service.available === (available === "true")
-        );
-    }
+    const services = servicesService.getServices(req.query);
 
     res.status(200).json(services);
 };
 
 export const getServiceById = (req, res) => {
-    const service = serviceManager.getServiceById(req.params.sid);
+    const service = servicesService.getServiceById(req.params.sid);
 
     if (!service) {
         return res.status(404).json({
@@ -37,7 +22,7 @@ export const getServiceById = (req, res) => {
 
 export const createService = (req, res) => {
     try {
-        const newService = serviceManager.addService(req.body);
+        const newService = servicesService.createService(req.body);
 
         res.status(201).json(newService);
     } catch (error) {
@@ -48,7 +33,7 @@ export const createService = (req, res) => {
 };
 
 export const updateService = (req, res) => {
-    const service = serviceManager.updateService(
+    const service = servicesService.updateService(
         req.params.sid,
         req.body
     );
@@ -63,7 +48,7 @@ export const updateService = (req, res) => {
 };
 
 export const deleteService = (req, res) => {
-    const deletedService = serviceManager.deleteService(req.params.sid);
+    const deletedService = servicesService.deleteService(req.params.sid);
 
     if (!deletedService) {
         return res.status(404).json({
