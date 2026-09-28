@@ -354,7 +354,6 @@ GET /api/bookings/:bid
 POST /api/bookings/:bid/services/:sid
 ```
 
-## Persistencia
 
 ## Persistencia
 
@@ -370,13 +369,13 @@ Los DAO utilizan estos modelos para realizar las operaciones de creación, consu
 
 La conexión con MongoDB se realiza mediante la variable de entorno MONGO_URI.
 
-Tecnologías utilizadas
-Node.js
-Express
-JavaScript
-ESM
-Mongoose
-MongoDB Atlas
-dotenv
-Git
-GitHub
+#Tecnologías utilizadas
+#Node.js
+#Express
+#JavaScript
+#ESM
+#Mongoose
+#MongoDB Atlas
+#dotenv
+#Git
+#GitHub
