@@ -2,14 +2,14 @@ import ServicesService from "../services/services.service.js";
 
 const servicesService = new ServicesService();
 
-export const getServices = (req, res) => {
-    const services = servicesService.getServices(req.query);
+export const getServices = async (req, res) => {
+    const services = await servicesService.getServices(req.query);
 
     res.status(200).json(services);
 };
 
-export const getServiceById = (req, res) => {
-    const service = servicesService.getServiceById(req.params.sid);
+export const getServiceById = async (req, res) => {
+    const service = await servicesService.getServiceById(req.params.sid);
 
     if (!service) {
         return res.status(404).json({
@@ -20,9 +20,9 @@ export const getServiceById = (req, res) => {
     res.status(200).json(service);
 };
 
-export const createService = (req, res) => {
+export const createService = async (req, res) => {
     try {
-        const newService = servicesService.createService(req.body);
+        const newService = await servicesService.createService(req.body);
 
         res.status(201).json(newService);
     } catch (error) {
@@ -32,8 +32,8 @@ export const createService = (req, res) => {
     }
 };
 
-export const updateService = (req, res) => {
-    const service = servicesService.updateService(
+export const updateService = async (req, res) => {
+    const service = await servicesService.updateService(
         req.params.sid,
         req.body
     );
@@ -47,8 +47,8 @@ export const updateService = (req, res) => {
     res.status(200).json(service);
 };
 
-export const deleteService = (req, res) => {
-    const deletedService = servicesService.deleteService(req.params.sid);
+export const deleteService = async (req, res) => {
+    const deletedService = await servicesService.deleteService(req.params.sid);
 
     if (!deletedService) {
         return res.status(404).json({

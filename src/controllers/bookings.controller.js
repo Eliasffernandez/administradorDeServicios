@@ -2,14 +2,14 @@ import BookingsService from "../services/bookings.service.js";
 
 const bookingsService = new BookingsService();
 
-export const createBooking = (req, res) => {
-    const booking = bookingsService.createBooking(req.body);
+export const createBooking = async (req, res) => {
+    const booking = await bookingsService.createBooking(req.body);
 
     res.status(201).json(booking);
 };
 
-export const getBookingById = (req, res) => {
-    const booking = bookingsService.getBookingById(req.params.bid);
+export const getBookingById = async (req, res) => {
+    const booking = await bookingsService.getBookingById(req.params.bid);
 
     if (!booking) {
         return res.status(404).json({
@@ -20,8 +20,8 @@ export const getBookingById = (req, res) => {
     res.status(200).json(booking);
 };
 
-export const addServiceToBooking = (req, res) => {
-    const booking = bookingsService.addServiceToBooking(
+export const addServiceToBooking = async (req, res) => {
+    const booking = await bookingsService.addServiceToBooking(
         req.params.bid,
         req.params.sid
     );

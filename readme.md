@@ -40,6 +40,7 @@ El proyecto utiliza las siguientes variables de entorno:
 ```env
 PORT=8080
 NODE_ENV=development
+MONGO_URI=
 ```
 
 Estas variables se configuran en un archivo `.env`.
@@ -52,28 +53,37 @@ El archivo `.env` no se incluye en el repositorio.
 ```text
 src/
 ├── config/
-│   └── env.config.js
+│   ├── env.config.js
+│   └── database.config.js
+│
 ├── controllers/
 │   ├── services.controller.js
 │   └── bookings.controller.js
+│
 ├── services/
 │   ├── services.service.js
 │   └── bookings.service.js
+│
 ├── repositories/
 │   ├── services.repository.js
 │   └── bookings.repository.js
+│
 ├── dao/
 │   ├── services.dao.js
 │   └── bookings.dao.js
+│
+├── models/
+│   ├── service.model.js
+│   ├── booking.model.js
+│   └── message.model.js
+│
 ├── routes/
 │   ├── services.router.js
 │   └── bookings.router.js
-├── data/
-│   ├── services.json
-│   └── bookings.json
-├── app.js
-└── server.js
+│
+└── app.js
 
+server.js
 package.json
 .env.example
 .gitignore
@@ -87,7 +97,8 @@ La API está organizada utilizando una arquitectura en capas, separando las resp
 El flujo de una petición es:
 
 ```text
-Router → Controller → Service → Repository → DAO → JSON
+Router → Controller → Service → Repository → DAO → Model → MongoDB
+
 ## Servicios
 
 Cada servicio contiene los siguientes datos:
@@ -100,11 +111,13 @@ Cada servicio contiene los siguientes datos:
 - `category`: categoría del servicio.
 - `available`: indica si el servicio está disponible.
 
+MongoDB genera automáticamente el identificador _id para cada servicio.
+
 Ejemplo:
 
-```json
+
 {
-    "id": 1,
+    "_id": "6ab9d2b519f01d1d5f959845",
     "name": "Lavado de auto",
     "description": "Lavado completo",
     "duration": 60,
@@ -112,7 +125,7 @@ Ejemplo:
     "category": "Automotor",
     "available": true
 }
-```
+
 
 ## Capas de Services
 
@@ -199,26 +212,27 @@ Ejemplo:
 
 ```json
 {
-    "service": 1,
+    "service": "6ab9d2b519f01d1d5f959845",
     "quantity": 1
 }
 ```
+La propiedad service utiliza un ObjectId de MongoDB asociado al modelo Service.
 
-Si se agrega nuevamente el mismo servicio a una reserva, se incrementa su `quantity`.
+Si se agrega nuevamente el mismo servicio a una reserva, se incrementa su quantity.
 
 Ejemplo:
 
 ```json
 {
-    "id": 1,
+    "_id": "6ab9dcee95a6983147c2ca61",
     "clientName": "Juan Perez",
     "clientEmail": "juan@gmail.com",
-    "date": "2026-09-15",
+    "date": "2026-09-28",
     "time": "15:00",
     "status": "pending",
     "services": [
         {
-            "service": 1,
+            "service": "6ab9d2b519f01d1d5f959845",
             "quantity": 2
         }
     ]
@@ -234,6 +248,7 @@ El recurso `bookings` está organizado en diferentes capas:
 - `bookings.dao.js`: realiza la lectura y escritura de `bookings.json`.
 - `bookings.controller.js`: recibe las solicitudes HTTP y devuelve las respuestas.
 - `bookings.router.js`: define los endpoints relacionados con las reservas.
+- `booking.model.js`: define el esquema de las reservas en MongoDB
 
 Cuando se agrega un servicio a una reserva, si el mismo servicio ya se encuentra asociado, se incrementa su `quantity`.
 
@@ -343,20 +358,25 @@ POST /api/bookings/:bid/services/:sid
 
 ## Persistencia
 
-La información se almacena mediante FileSystem en archivos JSON:
+La información se almacena en MongoDB Atlas utilizando Mongoose.
 
-```text
-src/data/services.json
-src/data/bookings.json
+Los documentos se organizan mediante los siguientes modelos:
 
-## Tecnologías utilizadas
+Service
+Booking
+Message
 
-- Node.js
-- Express
-- JavaScript
-- ESM
-- FileSystem
-- dotenv
-- JSON
-- Git
-- GitHub
+Los DAO utilizan estos modelos para realizar las operaciones de creación, consulta, modificación y eliminación de datos.
+
+La conexión con MongoDB se realiza mediante la variable de entorno MONGO_URI.
+
+Tecnologías utilizadas
+Node.js
+Express
+JavaScript
+ESM
+Mongoose
+MongoDB Atlas
+dotenv
+Git
+GitHub

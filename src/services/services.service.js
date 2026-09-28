@@ -5,8 +5,8 @@ class ServicesService {
         this.repository = new ServicesRepository();
     }
 
-    getServices(filters = {}) {
-        let services = this.repository.getAll();
+    async getServices(filters = {}) {
+        let services = await this.repository.getAll();
 
         const { category, available } = filters;
 
@@ -25,11 +25,11 @@ class ServicesService {
         return services;
     }
 
-    getServiceById(id) {
-        return this.repository.getById(id);
+    async getServiceById(id) {
+        return await this.repository.getById(id);
     }
 
-    createService(serviceData) {
+    async createService(serviceData) {
         const requiredFields = [
             "name",
             "description",
@@ -49,15 +49,15 @@ class ServicesService {
             );
         }
 
-        return this.repository.create(serviceData);
+        return await this.repository.create(serviceData);
     }
 
-    updateService(id, updateData) {
-        return this.repository.update(id, updateData);
+    async updateService(id, updateData) {
+        return await this.repository.update(id, updateData);
     }
 
-    deleteService(id) {
-        return this.repository.delete(id);
+    async deleteService(id) {
+        return await this.repository.delete(id);
     }
 }
 

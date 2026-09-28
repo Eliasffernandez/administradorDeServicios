@@ -1,56 +1,55 @@
 import BookingsRepository from "../repositories/bookings.repository.js";
-import ServicesRepository from "../repositories/services.repository.js";
+import ServicesService from "./services.service.js";
 
 class BookingsService {
     constructor() {
         this.repository = new BookingsRepository();
-        this.servicesRepository = new ServicesRepository();
+        this.servicesService = new ServicesService();
     }
 
-    createBooking(bookingData) {
+    async createBooking(bookingData) {
         const booking = {
             ...bookingData,
             services: []
         };
 
-        return this.repository.create(booking);
+        return await this.repository.create(booking);
     }
 
-    getBookingById(id) {
-        return this.repository.getById(id);
+    async getBookingById(id) {
+        return await this.repository.getById(id);
     }
 
-    addServiceToBooking(bookingId, serviceId) {
-        const booking = this.repository.getById(bookingId);
+    async addServiceToBooking(bookingId, serviceId) {
+        const booking = await this.repository.getById(bookingId);
 
         if (!booking) {
             return null;
         }
 
-        const service = this.servicesRepository.getById(serviceId);
+        const service = await this.servicesService.getServiceById(serviceId);
 
         if (!service) {
             return undefined;
         }
 
-        const services = [...booking.services];
-
-        const existingService = services.find(
-            item => item.service === Number(serviceId)
+        const existingService = booking.services.find(
+            item => item.service.toString() === serviceId.toString()
         );
 
         if (existingService) {
-            existingService.quantity++;
+            existingService.quantity += 1;
         } else {
-            services.push({
-                service: Number(serviceId),
+            booking.services.push({
+                service: serviceId,
                 quantity: 1
             });
         }
-
-        return this.repository.update(bookingId, {
-            services
-        });
+        console.log(booking.services);
+        return await this.repository.update(
+            bookingId,
+            { services: booking.services }
+        );
     }
 }
 
