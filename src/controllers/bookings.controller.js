@@ -38,5 +38,10 @@ export const addServiceToBooking = async (req, res) => {
         });
     }
 
+    const io = req.app.get("io");
+
+    io.emit("bookingUpdated", booking);
+
     res.status(200).json(booking);
 };
+

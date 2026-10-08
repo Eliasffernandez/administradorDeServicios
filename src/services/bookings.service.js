@@ -15,6 +15,9 @@ class BookingsService {
 
         return await this.repository.create(booking);
     }
+    async getBookings() {
+       return await this.repository.getAll();
+    }
 
     async getBookingById(id) {
         return await this.repository.getById(id);

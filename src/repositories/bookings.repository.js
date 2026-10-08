@@ -8,6 +8,9 @@ class BookingsRepository {
     create(bookingData) {
         return this.dao.create(bookingData);
     }
+    getAll() {
+        return this.dao.getAll();
+    }
 
     getById(id) {
         return this.dao.getById(id);

@@ -1,0 +1,62 @@
+<h2>Disponibilidad de reservas</h2>
+
+<div id="bookings-list">
+
+    {{#if bookings}}
+
+        {{#each bookings}}
+
+            <article class="booking" data-booking-id="{{_id}}">
+
+                <h3>Reserva de {{clientName}}</h3>
+
+                <p>
+                    <strong>Email:</strong>
+                    {{clientEmail}}
+                </p>
+
+                <p>
+                    <strong>Fecha:</strong>
+                    {{date}}
+                </p>
+
+                <p>
+                    <strong>Horario:</strong>
+                    {{time}}
+                </p>
+
+                <p>
+                    <strong>Estado:</strong>
+                    {{status}}
+                </p>
+
+                <p>
+                    <strong>Servicios:</strong>
+                </p>
+
+                <ul class="booking-services">
+
+                    {{#each services}}
+
+                        <li>
+                            Servicio {{service}} - Cantidad: {{quantity}}
+                        </li>
+
+                    {{/each}}
+
+                </ul>
+
+            </article>
+
+        {{/each}}
+
+    {{else}}
+
+        <p>No hay reservas registradas.</p>
+
+    {{/if}}
+
+</div>
+
+
+

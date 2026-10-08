@@ -1,0 +1,47 @@
+<h2>Servicios disponibles</h2>
+
+<div id="services-list">
+
+    {{#each services}}
+
+        <article class="service">
+
+            <h3>{{name}}</h3>
+
+            <p>{{description}}</p>
+
+            <p>
+                <strong>Duración:</strong>
+                {{duration}} minutos
+            </p>
+
+            <p>
+                <strong>Precio:</strong>
+                ${{price}}
+            </p>
+
+            <p>
+                <strong>Categoría:</strong>
+                {{category}}
+            </p>
+
+            <p>
+                <strong>Disponibilidad:</strong>
+
+                {{#if available}}
+                    Disponible
+                {{else}}
+                    No disponible
+                {{/if}}
+
+            </p>
+
+        </article>
+
+    {{/each}}
+
+
+
+</div>
+
+

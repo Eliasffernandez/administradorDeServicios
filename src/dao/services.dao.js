@@ -3,7 +3,7 @@ import Service from "../models/service.model.js";
 class ServicesDAO {
 
     getAll() {
-        return Service.find();
+        return Service.find().lean();
     }
 
     getById(id) {

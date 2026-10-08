@@ -4,9 +4,11 @@
 
 Este proyecto consiste en una API REST para la gestión de servicios y reservas de un sistema de turnos.
 
-La aplicación está desarrollada con Node.js y Express, utilizando módulos ESM y FileSystem para persistir la información en archivos JSON.
+La aplicación está desarrollada con Node.js y Express, utilizando módulos ESM, MongoDB y Mongoose para la persistencia de datos.
 
-La API administra dos recursos principales:
+Además, el proyecto incorpora vistas dinámicas con Handlebars y comunicación en tiempo real mediante Socket.io.
+
+La aplicación administra dos recursos principales:
 
 - `services`: servicios disponibles para reservar.
 - `bookings`: reservas realizadas por los clientes.
@@ -47,7 +49,6 @@ Estas variables se configuran en un archivo `.env`.
 
 El archivo `.env` no se incluye en el repositorio.
 
-
 ## Estructura del proyecto
 
 ```text
@@ -58,7 +59,8 @@ src/
 │
 ├── controllers/
 │   ├── services.controller.js
-│   └── bookings.controller.js
+│   ├── bookings.controller.js
+│   └── views.controller.js
 │
 ├── services/
 │   ├── services.service.js
@@ -79,16 +81,29 @@ src/
 │
 ├── routes/
 │   ├── services.router.js
-│   └── bookings.router.js
+│   ├── bookings.router.js
+│   └── views.router.js
+│
+├── views/
+│   ├── layouts/
+│   │   └── main.handlebars
+│   ├── services.handlebars
+│   └── availability.handlebars
 │
 └── app.js
+
+public/
+├── css/
+│   └── styles.css
+└── js/
+    └── socket.js
 
 server.js
 package.json
 .env.example
 .gitignore
 README.md
-
+```
 
 ## Arquitectura
 
@@ -98,12 +113,14 @@ El flujo de una petición es:
 
 ```text
 Router → Controller → Service → Repository → DAO → Model → MongoDB
+```
+
+Las vistas de Handlebars también utilizan las mismas capas para obtener la información desde MongoDB.
 
 ## Servicios
 
 Cada servicio contiene los siguientes datos:
 
-- `id`: identificador generado automáticamente.
 - `name`: nombre del servicio.
 - `description`: descripción del servicio.
 - `duration`: duración del servicio.
@@ -111,11 +128,11 @@ Cada servicio contiene los siguientes datos:
 - `category`: categoría del servicio.
 - `available`: indica si el servicio está disponible.
 
-MongoDB genera automáticamente el identificador _id para cada servicio.
+MongoDB genera automáticamente el identificador `_id` para cada servicio.
 
 Ejemplo:
 
-
+```json
 {
     "_id": "6ab9d2b519f01d1d5f959845",
     "name": "Lavado de auto",
@@ -125,7 +142,7 @@ Ejemplo:
     "category": "Automotor",
     "available": true
 }
-
+```
 
 ## Capas de Services
 
@@ -133,72 +150,79 @@ El recurso `services` está organizado en diferentes capas:
 
 - `services.service.js`: contiene la lógica de negocio de los servicios.
 - `services.repository.js`: comunica el service con el DAO.
-- `services.dao.js`: realiza la lectura y escritura de `services.json`.
+- `services.dao.js`: realiza las operaciones sobre MongoDB mediante el modelo correspondiente.
 - `services.controller.js`: recibe las solicitudes HTTP y devuelve las respuestas.
 - `services.router.js`: define los endpoints relacionados con los servicios.
+- `service.model.js`: define el esquema de los servicios en MongoDB.
 
-### getServices()
+### Obtener servicios
 
-Devuelve todos los servicios.
+Devuelve todos los servicios disponibles en MongoDB.
 
-```js
-serviceManager.getServices();
+```text
+GET /api/services
 ```
 
-### getServiceById(id)
+También permite aplicar filtros mediante query parameters.
 
-Busca un servicio por su ID.
-
-```js
-serviceManager.getServiceById(1);
+```text
+GET /api/services?category=Automotor
 ```
 
-Si el servicio no existe, devuelve `null`.
-
-### addService(serviceData)
-
-Agrega un nuevo servicio.
-
-El ID se genera automáticamente.
-
-```js
-serviceManager.addService({
-    name: "Lavado de auto",
-    description: "Lavado completo",
-    duration: 60,
-    price: 8000,
-    category: "Automotor",
-    available: true
-});
+```text
+GET /api/services?available=true
 ```
 
-### updateService(id, updateData)
+### Obtener un servicio por ID
 
-Permite modificar los datos de un servicio existente.
-
-```js
-serviceManager.updateService(1, {
-    price: 9000
-});
+```text
+GET /api/services/:sid
 ```
 
-El ID del servicio no puede ser modificado.
+### Crear un servicio
 
-### deleteService(id)
-
-Elimina un servicio existente.
-
-```js
-serviceManager.deleteService(1);
+```text
+POST /api/services
 ```
 
-Si el servicio no existe, devuelve `null`.
+Ejemplo de datos:
+
+```json
+{
+    "name": "Lavado de auto",
+    "description": "Lavado completo",
+    "duration": 60,
+    "price": 8000,
+    "category": "Automotor",
+    "available": true
+}
+```
+
+### Modificar un servicio
+
+```text
+PUT /api/services/:sid
+```
+
+Ejemplo:
+
+```json
+{
+    "price": 9000
+}
+```
+
+### Eliminar un servicio
+
+```text
+DELETE /api/services/:sid
+```
 
 ## Reservas
 
 Cada reserva contiene los siguientes datos:
 
-- `id`: identificador generado automáticamente.
+- `_id`: identificador generado automáticamente por MongoDB.
 - `clientName`: nombre del cliente.
 - `clientEmail`: email del cliente.
 - `date`: fecha de la reserva.
@@ -216,9 +240,10 @@ Ejemplo:
     "quantity": 1
 }
 ```
-La propiedad service utiliza un ObjectId de MongoDB asociado al modelo Service.
 
-Si se agrega nuevamente el mismo servicio a una reserva, se incrementa su quantity.
+La propiedad `service` utiliza un ObjectId de MongoDB asociado al modelo `Service`.
+
+Si se agrega nuevamente el mismo servicio a una reserva, se incrementa su `quantity`.
 
 Ejemplo:
 
@@ -233,7 +258,7 @@ Ejemplo:
     "services": [
         {
             "service": "6ab9d2b519f01d1d5f959845",
-            "quantity": 2
+            "quantity": 3
         }
     ]
 }
@@ -245,47 +270,146 @@ El recurso `bookings` está organizado en diferentes capas:
 
 - `bookings.service.js`: contiene la lógica de negocio de las reservas.
 - `bookings.repository.js`: comunica el service con el DAO.
-- `bookings.dao.js`: realiza la lectura y escritura de `bookings.json`.
+- `bookings.dao.js`: realiza las operaciones sobre MongoDB mediante el modelo correspondiente.
 - `bookings.controller.js`: recibe las solicitudes HTTP y devuelve las respuestas.
 - `bookings.router.js`: define los endpoints relacionados con las reservas.
-- `booking.model.js`: define el esquema de las reservas en MongoDB
+- `booking.model.js`: define el esquema de las reservas en MongoDB.
 
 Cuando se agrega un servicio a una reserva, si el mismo servicio ya se encuentra asociado, se incrementa su `quantity`.
 
-### createBooking(bookingData)
+### Crear una reserva
 
-Crea una nueva reserva y genera automáticamente su ID.
+```text
+POST /api/bookings
+```
 
-```js
-bookingManager.createBooking({
-    clientName: "Juan Perez",
-    clientEmail: "juan@gmail.com",
-    date: "2026-09-15",
-    time: "15:00",
-    status: "pending"
-});
+Ejemplo:
+
+```json
+{
+    "clientName": "Juan Perez",
+    "clientEmail": "juan@gmail.com",
+    "date": "2026-09-28",
+    "time": "15:00",
+    "status": "pending"
+}
 ```
 
 La reserva se crea inicialmente con `services` vacío.
 
-### getBookingById(id)
+### Obtener una reserva por ID
 
-Busca una reserva por su ID.
-
-```js
-bookingManager.getBookingById(1);
+```text
+GET /api/bookings/:bid
 ```
 
-Si la reserva no existe, devuelve `null`.
+### Agregar un servicio a una reserva
 
-### addServiceToBooking(bookingId, serviceId)
+```text
+POST /api/bookings/:bid/services/:sid
+```
 
-Agrega un servicio a una reserva existente.
+Si el servicio ya se encuentra dentro de la reserva, se incrementa su cantidad.
 
-Si el servicio ya se encuentra dentro de la reserva, incrementa su cantidad.
+## Vistas con Handlebars
 
-```js
-bookingManager.addServiceToBooking(1, 1);
+El proyecto incorpora vistas dinámicas utilizando Handlebars.
+
+### Servicios
+
+La vista:
+
+```text
+GET /views/services
+```
+
+muestra los servicios obtenidos desde MongoDB.
+
+La información mostrada incluye:
+
+- Nombre.
+- Descripción.
+- Duración.
+- Precio.
+- Categoría.
+- Disponibilidad.
+
+### Disponibilidad de reservas
+
+La vista:
+
+```text
+GET /views/availability
+```
+
+muestra las reservas obtenidas desde MongoDB.
+
+La información mostrada incluye:
+
+- Cliente.
+- Email.
+- Fecha.
+- Horario.
+- Estado.
+- Servicios asociados.
+- Cantidad de cada servicio.
+
+Las vistas no utilizan datos hardcodeados, sino que reciben la información desde las capas de la aplicación.
+
+## Comunicación en tiempo real
+
+El proyecto utiliza Socket.io para actualizar información en el navegador sin necesidad de recargar la página.
+
+Cuando se agrega un servicio a una reserva mediante:
+
+```text
+POST /api/bookings/:bid/services/:sid
+```
+
+el servidor emite el evento:
+
+```text
+bookingUpdated
+```
+
+El cliente escucha este evento mediante:
+
+```text
+public/js/socket.js
+```
+
+y actualiza la información de la reserva mostrada en la vista `/views/availability`.
+
+Por ejemplo, si la cantidad de un servicio pasa de:
+
+```text
+2
+```
+
+a:
+
+```text
+3
+```
+
+la cantidad se actualiza automáticamente en el navegador sin realizar una recarga de la página.
+
+## Persistencia
+
+La información se almacena en MongoDB Atlas utilizando Mongoose.
+
+Los principales modelos utilizados son:
+
+- `Service`
+- `Booking`
+- `Message`
+
+Los DAO utilizan estos modelos para realizar las operaciones de creación, consulta, modificación y eliminación de datos.
+
+La conexión con MongoDB se realiza mediante la variable de entorno:
+
+```env
+MONGO_URI=
 ```
 
 ## Endpoints
@@ -354,28 +478,30 @@ GET /api/bookings/:bid
 POST /api/bookings/:bid/services/:sid
 ```
 
+### Views
 
-## Persistencia
+#### Ver servicios
 
-La información se almacena en MongoDB Atlas utilizando Mongoose.
+```text
+GET /views/services
+```
 
-Los documentos se organizan mediante los siguientes modelos:
+#### Ver disponibilidad
 
-Service
-Booking
-Message
+```text
+GET /views/availability
+```
 
-Los DAO utilizan estos modelos para realizar las operaciones de creación, consulta, modificación y eliminación de datos.
+## Tecnologías utilizadas
 
-La conexión con MongoDB se realiza mediante la variable de entorno MONGO_URI.
-
-#Tecnologías utilizadas
-#Node.js
-#Express
-#JavaScript
-#ESM
-#Mongoose
-#MongoDB Atlas
-#dotenv
-#Git
-#GitHub
+- Node.js
+- Express
+- JavaScript
+- ESM
+- Mongoose
+- MongoDB Atlas
+- Handlebars
+- Socket.io
+- dotenv
+- Git
+- GitHub

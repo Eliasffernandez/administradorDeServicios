@@ -6,6 +6,10 @@ class BookingsDAO {
         return Booking.create(booking);
     }
 
+    getAll() {
+       return Booking.find().lean();
+    }
+
     getById(id) {
         return Booking.findById(id);
     }
