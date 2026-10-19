@@ -8,7 +8,9 @@ class ServicesRepository {
     getAll() {
         return this.dao.getAll();
     }
-
+    getPaginated(filters, options) {
+    return this.dao.getPaginated(filters, options);
+    }
     getById(id) {
         return this.dao.getById(id);
     }

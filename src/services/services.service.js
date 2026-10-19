@@ -6,23 +6,54 @@ class ServicesService {
     }
 
     async getServices(filters = {}) {
-        let services = await this.repository.getAll();
+        const {
+            category,
+            available,
+            page = 1,
+            limit = 10,
+            sortBy = "name",
+            order = "asc"
+        } = filters;
 
-        const { category, available } = filters;
+        const mongoFilters = {};
 
         if (category) {
-            services = services.filter(
-                service => service.category.toLowerCase() === category.toLowerCase()
-            );
+            mongoFilters.category = {
+                $regex: category,
+                $options: "i"
+            };
         }
 
         if (available !== undefined) {
-            services = services.filter(
-                service => service.available === (available === "true")
-            );
+            mongoFilters.available = available === "true";
         }
 
-        return services;
+        const paginationOptions = {
+            page: Number(page),
+            limit: Number(limit),
+            sortBy,
+            order
+        };
+
+        const { services, total } =
+            await this.repository.getPaginated(
+                mongoFilters,
+                paginationOptions
+            );
+
+        const totalPages = Math.ceil(
+            total / paginationOptions.limit
+        );
+
+        return {
+            services,
+            total,
+            page: paginationOptions.page,
+            limit: paginationOptions.limit,
+            totalPages,
+            hasPrevPage: paginationOptions.page > 1,
+            hasNextPage: paginationOptions.page < totalPages
+        };
     }
 
     async getServiceById(id) {

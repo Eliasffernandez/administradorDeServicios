@@ -11,7 +11,8 @@ class BookingsDAO {
     }
 
     getById(id) {
-        return Booking.findById(id);
+    return Booking.findById(id)
+        .populate("services.service");
     }
 
     update(id, updateData) {
